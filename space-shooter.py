@@ -17,6 +17,16 @@ class SpaceWindow(arcade.Window):
         arcade.set_background_color(arcade.color.BLACK)
         self.world.draw()
     
+    def on_key_press(self, key, modifiers):
+        self.world.player.on_key_press(key, modifiers)
+
+    def on_key_release(self, key, modifiers):
+        self.world.player.on_key_release(key, modifiers)
+
+
+    def update(self, delta):
+        self.world.player.update()
+
 def main():
     SpaceWindow()
     arcade.run()

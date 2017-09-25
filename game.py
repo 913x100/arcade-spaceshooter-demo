@@ -8,6 +8,9 @@ class World:
         self.height = height
 
         self.player = Player(50, 70)
-    
+
+    def update(self, delta):
+        self.player.update()
+
     def draw(self):
         self.player.draw()
