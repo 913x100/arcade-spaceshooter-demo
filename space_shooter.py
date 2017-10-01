@@ -11,6 +11,15 @@ SCREEN_WIDTH = 500
 
 BULLET_TIME = 0.25
 
+'''
+class Event1(SpaceWindow):
+    def __init__(self, enemy_list):
+        self.enemy_list = enemy_list
+        self.enemy1 = Enemy("images/enemyBlack1.png", SPRITE_SCALING)
+        self.enemy1.setup(120, SCREEN_HEIGHT - self.enemy1.height)
+    def update(self):   
+'''
+
 class SpaceWindow(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height, "Space Shooter")
@@ -20,6 +29,7 @@ class SpaceWindow(arcade.Window):
 
         self.wait_time = 0
         self.frame_count = 0
+        self.game_wave = 1
 
     def setup(self):
         # Sprite lists
@@ -32,16 +42,17 @@ class SpaceWindow(arcade.Window):
         self.all_sprites_list.append(self.player)
 
         # Set up the enemy 
+
         self.enemy = Enemy("images/enemyBlack1.png", SPRITE_SCALING)
         self.enemy.setup(120, SCREEN_HEIGHT - self.enemy.height, self.all_sprites_list)
         self.all_sprites_list.append(self.enemy)
         self.enemy_list.append(self.enemy)
-
+        #
         self.enemy = Enemy("images/enemyBlack1.png", SPRITE_SCALING)
         self.enemy.setup(SCREEN_WIDTH-120, SCREEN_HEIGHT - self.enemy.height, self.all_sprites_list)
+        self.enemy.change_x = -3
         self.all_sprites_list.append(self.enemy)
         self.enemy_list.append(self.enemy)
-
 
     def on_draw(self):
         arcade.start_render()
@@ -61,8 +72,6 @@ class SpaceWindow(arcade.Window):
     
     def update(self ,delta):
         self.player.update(delta)
-        self.frame_count += 1
-
         for enemy in self.enemy_list:
                 enemy.update(delta)
 

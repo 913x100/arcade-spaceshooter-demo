@@ -109,7 +109,7 @@ class Player(arcade.Sprite):
 
         self.wait_time += delta
         if self.wait_time > BULLET_TIME:
-            self.shoot2()
+            #self.shoot2()
             self.wait_time = 0
 
         for bullet in self.bullet_list:
@@ -120,7 +120,7 @@ class Player(arcade.Sprite):
                 for enemy in hit_lists:
                     enemy.kill()
                     while len(enemy.bullet_list) > 0:
-                        enemy.bullet_list.pop()
+                       enemy.bullet_list.pop()
             
 
             if bullet.bottom > SCREEN_HEIGHT or bullet.left < 0 or bullet.right > SCREEN_WIDTH:
