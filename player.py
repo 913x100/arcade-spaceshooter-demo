@@ -60,6 +60,7 @@ class Player(arcade.Sprite):
             self.top = SCREEN_HEIGHT - 1
 
     def on_key_press(self, key, modifiers):
+        '''
         if key == arcade.key.UP:
             self.change_y = MOVEMENT_SPEED
         elif key == arcade.key.DOWN:
@@ -68,16 +69,19 @@ class Player(arcade.Sprite):
             self.change_x = -MOVEMENT_SPEED
         elif key == arcade.key.RIGHT:
             self.change_x = MOVEMENT_SPEED
-        elif key == arcade.key.SPACE:
+        '''
+        if key == arcade.key.SPACE:
             self.isshot = True
         
 
     def on_key_release(self, key, modifiers):
+        '''
         if key == arcade.key.UP or key == arcade.key.DOWN:
             self.change_y = 0
         elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.change_x = 0
-        elif key == arcade.key.SPACE:
+        '''
+        if key == arcade.key.SPACE:
             self.isshot = False
         
     def update(self, delta):
