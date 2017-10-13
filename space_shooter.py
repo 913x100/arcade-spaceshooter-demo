@@ -22,16 +22,16 @@ class Explosion(arcade.Sprite):
         self.center_y = y
 
 class Background(arcade.Sprite):
-    def setup(self, x, top, ):
+    def setup(self, x, top):
         self.width = SCREEN_WIDTH
         self.height = SCREEN_HEIGHT
         self.center_x = x
         self.top = top
     
     def update(self):
-        self.center_y += 1
-        if self.bottom > SCREEN_HEIGHT:
-            self.top = 0
+        self.center_y -= 3
+        if self.top < 0:
+            self.bottom = SCREEN_HEIGHT
 
 class SpaceWindow(arcade.Window):
     def __init__(self, width, height):
@@ -51,6 +51,8 @@ class SpaceWindow(arcade.Window):
         self.spawn = 0
         self.wait_time = 0
         self.expl_time = 0
+        self.level_text = None
+        self.level = 1
 
     def setup(self):
         # Set up the player
@@ -60,7 +62,7 @@ class SpaceWindow(arcade.Window):
         bg.setup(SCREEN_WIDTH // 2 ,SCREEN_HEIGHT)
         self.background_list.append(bg)
         bg = Background("images/6.png", SPRITE_SCALING)
-        bg.setup(SCREEN_WIDTH // 2 ,0)
+        bg.setup(SCREEN_WIDTH // 2 ,2*SCREEN_HEIGHT)
         self.background_list.append(bg)
 
     def on_draw(self):
@@ -75,6 +77,10 @@ class SpaceWindow(arcade.Window):
         self.enemy_list.draw()
         self.bullet_list.draw()
         self.effect_list.draw()
+        # Draw text
+        output = f"Level: {self.wave}"
+        self.level_text = arcade.create_text(output, arcade.color.WHITE, 14)
+        arcade.render_text(self.level_text, 10, 70)
     
     def on_key_press(self, key, modifiers):
         self.player.on_key_press(key, modifiers)
@@ -107,12 +113,14 @@ class SpaceWindow(arcade.Window):
             random_list = [60, 100, 140, 180, 220, 260, 300, 340, 380, 420, 460]
             if self.frame % 100 == 0 and len(self.enemy_list) < 5:
                 #enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
-                enemy = Enemygreen("images/enemyGreen2.png", SPRITE_SCALING)
+                enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
                 spawn_x = randint(0, len(random_list)-1)
                 enemy.setup(random_list[spawn_x], SCREEN_HEIGHT + 20, self.bullet_list)
                 random_list.remove(random_list[spawn_x])
                 self.enemy_list.append(enemy)
                 self.spawn += 1
+        elif self.wave == 2:
+            pass
 
         
         # Check bullet
