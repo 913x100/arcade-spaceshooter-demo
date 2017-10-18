@@ -16,6 +16,7 @@ class Bullet(arcade.Sprite):
         self.bullet_type = BULLET_TYPE
         self.speed = BULLET_SPEED
         self.isEnemy = False
+        self.damage = 10
         
     def update(self):
         if self.bullet_type == 1:
@@ -38,12 +39,35 @@ class Player(arcade.Sprite):
         self.center_x = SCREEN_WIDTH // 2
         self.center_y = 70
         self.wait_time = 0
+        self.power = 3
         self.isshot = False
 
-    def shoot(self):
+    def shoot1(self):
         bullet = Bullet("images/laserBlue01.png", SPRITE_SCALING * 1.5)
         bullet.setup(self.center_x, self.top, 1, 6.5)
         self.bullet_list.append(bullet)
+    
+    def shoot2(self):
+        bullet = Bullet("images/laserBlue01.png", SPRITE_SCALING * 1.5)
+        bullet.setup(self.center_x-10, self.top, 1, 6.5)
+        self.bullet_list.append(bullet)
+        bullet = Bullet("images/laserBlue01.png", SPRITE_SCALING * 1.5)
+        bullet.setup(self.center_x+10, self.top, 1, 6.5)
+        self.bullet_list.append(bullet)
+    
+    def shoot3(self):
+        bullet = Bullet("images/laserBlue01.png", SPRITE_SCALING * 1.5)
+        bullet.setup(self.center_x+5, self.top, 2, 6.5)
+        bullet.angle = -15
+        self.bullet_list.append(bullet)
+        bullet = Bullet("images/laserBlue01.png", SPRITE_SCALING * 1.5)
+        bullet.setup(self.center_x, self.top, 1, 6.5)
+        self.bullet_list.append(bullet)
+        bullet = Bullet("images/laserBlue01.png", SPRITE_SCALING * 1.5)
+        bullet.setup(self.center_x-5, self.top, 3, 6.5)
+        bullet.angle = 15
+        self.bullet_list.append(bullet)
+        
 
     def movement(self):
         self.center_x += self.change_x
@@ -90,5 +114,11 @@ class Player(arcade.Sprite):
         self.wait_time += delta
         if self.wait_time > BULLET_TIME:
             if self.isshot: 
-                self.shoot()
+                if self.power == 1:
+                    self.shoot1()
+                elif self.power == 2:
+                    self.shoot2()
+                elif self.power == 3:
+                    self.shoot3()
+                    pass
             self.wait_time = 0

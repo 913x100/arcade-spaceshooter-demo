@@ -4,7 +4,7 @@ import arcade
 import pyglet
 from pyglet.window import key
 
-from enemy import Enemyblack, Enemygreen
+from enemy import Enemyblack, Enemygreen, Enemyred
 from player import Player
 
 SPRITE_SCALING = 0.5
@@ -21,6 +21,18 @@ class Explosion(arcade.Sprite):
         self.center_x = x
         self.center_y = y
 
+class Power(arcade.Sprite):
+    def setup(self, x):
+        self.center_x = x
+        self.center_y = SCREEN_HEIGHT + 20
+        self.type = "power"
+    def update(self):
+        self.center_y -= 1.5
+
+        if self.center_y < 0:
+            self.kill()
+
+
 class Background(arcade.Sprite):
     def setup(self, x, top):
         self.width = SCREEN_WIDTH
@@ -29,7 +41,7 @@ class Background(arcade.Sprite):
         self.top = top
     
     def update(self):
-        self.center_y -= 3
+        self.center_y -= 1
         if self.top < 0:
             self.bottom = SCREEN_HEIGHT
 
@@ -44,6 +56,7 @@ class SpaceWindow(arcade.Window):
         self.bullet_list = arcade.SpriteList()
         self.effect_list = arcade.SpriteList()
         self.background_list = arcade.SpriteList()
+        self.item_list = arcade.SpriteList()
         self.gameOver = False
         self.wave = 1
         self.isStart = False
@@ -52,7 +65,6 @@ class SpaceWindow(arcade.Window):
         self.wait_time = 0
         self.expl_time = 0
         self.level_text = None
-        self.level = 1
 
     def setup(self):
         # Set up the player
@@ -77,6 +89,7 @@ class SpaceWindow(arcade.Window):
         self.enemy_list.draw()
         self.bullet_list.draw()
         self.effect_list.draw()
+        self.item_list.draw()
         # Draw text
         output = f"Level: {self.wave}"
         self.level_text = arcade.create_text(output, arcade.color.WHITE, 14)
@@ -101,25 +114,33 @@ class SpaceWindow(arcade.Window):
     def update(self ,delta):
         # All object update 
         self.background_list.update()
+        self.item_list.update()
         self.player_controller()
 
         self.player.update(delta)
         self.bullet_list.update()
         for enemy in self.enemy_list:
                 enemy.update(delta)
+        
+        #self.frame += 1
 
         if self.wave == 1:
             time_spawn = randint(40, 80)
             random_list = [60, 100, 140, 180, 220, 260, 300, 340, 380, 420, 460]
-            if self.frame % 100 == 0 and len(self.enemy_list) < 5:
+            if self.frame % 100 == 0:
                 #enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
-                enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
+                enemy = Enemygreen("images/enemyGreen2.png", SPRITE_SCALING)
                 spawn_x = randint(0, len(random_list)-1)
-                enemy.setup(random_list[spawn_x], SCREEN_HEIGHT + 20, self.bullet_list)
-                random_list.remove(random_list[spawn_x])
+                enemy.setup(random_list[spawn_x], SCREEN_HEIGHT + 20, 10, self.bullet_list)
                 self.enemy_list.append(enemy)
                 self.spawn += 1
         elif self.wave == 2:
+            if self.frame % 100 == 0:
+                enemy = Enemyred("images/enemyRed5.png", SPRITE_SCALING)
+                spawn_x = randint(50, 460)
+                enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 20, self.bullet_list)
+                self.enemy_list.append(enemy)
+        elif self.wave == 3:
             pass
 
         
@@ -128,13 +149,17 @@ class SpaceWindow(arcade.Window):
             if not bullet.isEnemy:
                 player_hits = arcade.check_for_collision_with_list(bullet, self.enemy_list)
                 if len(player_hits) > 0:
+                    #bullet.kill()
+                    for enemy in player_hits:   
+                        enemy.health -= bullet.damage
+                        if enemy.health <= 0:                  
+                            enemy.die()
+                            enemy.kill()
+                            for i in range(0, 8):
+                                expl = Explosion("images/regularExplosion0"+str(i)+".png", SPRITE_SCALING)
+                                expl.setup(enemy.center_x, enemy.center_y)
+                                self.effect_list.append(expl)
                     bullet.kill()
-                    for enemy in player_hits:
-                        enemy.kill()
-                        for i in range(0, 8):
-                            expl = Explosion("images/regularExplosion0"+str(i)+".png", SPRITE_SCALING)
-                            expl.setup(enemy.center_x, enemy.center_y)
-                            self.effect_list.append(expl)
 
         self.expl_time += delta
         if self.expl_time > 0.03 :
@@ -142,7 +167,21 @@ class SpaceWindow(arcade.Window):
             if len(self.effect_list) > 0:
                 self.effect_list[0].kill()
         
+        # Check power
+        if self.frame % 1000 == 0:
+            power = Power("images/powerupBlue_bolt.png", SPRITE_SCALING * 1.5)
+            power.setup(randint(50, 460))
+            self.item_list.append(power)
+        player_hits = arcade.check_for_collision_with_list(self.player, self.item_list)
+        for item in player_hits:
+            if item.type == "power":
+                self.player.power += 1
+                if self.player.power > 3:
+                    self.player.power = 3
+            item.kill()
+        
         self.frame += 1
+        
 
 keys = pyglet.window.key.KeyStateHandler()
 
