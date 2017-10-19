@@ -66,6 +66,7 @@ class SpaceWindow(arcade.Window):
         self.wait_time = 0
         self.expl_time = 0
         self.level_text = None
+        self.expl_sound = arcade.sound.load_sound("sounds/expl3.wav")
 
     def setup(self):
         # Set up the player
@@ -131,21 +132,48 @@ class SpaceWindow(arcade.Window):
         if self.wave == 1:
             time_spawn = randint(40, 80)
             random_list = [60, 100, 140, 180, 220, 260, 300, 340, 380, 420, 460]
-            if self.frame % 100 == 0:
+            if self.frame % 60 == 0 and len(self.enemy_list) < 15:
                 #enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
-                enemy = Enemygreen("images/enemyGreen2.png", SPRITE_SCALING)
+                enemy = Enemyred("images/enemyRed5.png", SPRITE_SCALING)
                 spawn_x = randint(0, len(random_list)-1)
                 enemy.setup(random_list[spawn_x], SCREEN_HEIGHT + 20, 20, self.bullet_list)
                 self.enemy_list.append(enemy)
-                self.spawn += 1
+                if self.score >= 800:
+                    self.wave += 1
         elif self.wave == 2:
-            if self.frame % 100 == 0:
-                enemy = Enemyred("images/enemyRed5.png", SPRITE_SCALING)
+            if self.frame % 80 == 0 and len(self.enemy_list) < 15:
+                enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
                 spawn_x = randint(50, 460)
                 enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 30, self.bullet_list)
                 self.enemy_list.append(enemy)
+                if self.score >= 2000:
+                    self.wave += 1
         elif self.wave == 3:
-            pass
+            if self.frame % 100 == 0 and len(self.enemy_list) < 15:
+                enemy = Enemygreen("images/enemyGreen2.png", SPRITE_SCALING)
+                spawn_x = randint(50, 460)
+                enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 30, self.bullet_list)
+                self.enemy_list.append(enemy)
+                if self.score >= 3500:
+                    self.wave += 1
+        elif  self.wave == 4:
+            random_list = [60, 100, 140, 180, 220, 260, 300, 340, 380, 420, 460]
+            if self.frame % 60 == 0 and len(self.enemy_list) < 25:
+                #enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
+                enemy = Enemyred("images/enemyRed5.png", SPRITE_SCALING)
+                spawn_x = randint(0, len(random_list)-1)
+                enemy.setup(random_list[spawn_x], SCREEN_HEIGHT + 20, 20, self.bullet_list)
+                self.enemy_list.append(enemy)
+            if self.frame % 80 == 0 and len(self.enemy_list) < 25:
+                enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
+                spawn_x = randint(50, 460)
+                enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 30, self.bullet_list)
+                self.enemy_list.append(enemy)
+            if self.frame % 100 == 0 and len(self.enemy_list) < 25:
+                enemy = Enemygreen("images/enemyGreen2.png", SPRITE_SCALING)
+                spawn_x = randint(50, 460)
+                enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 30, self.bullet_list)
+                self.enemy_list.append(enemy)
 
         
         # Check bullet
@@ -157,7 +185,8 @@ class SpaceWindow(arcade.Window):
                     for enemy in player_hits:   
                         enemy.health -= bullet.damage
                         if enemy.health <= 0:    
-                            self.score += enemy.score              
+                            self.score += enemy.score   
+                            arcade.sound.play_sound(self.expl_sound)           
                             enemy.die()
                             enemy.kill()
                             for i in range(0, 8):

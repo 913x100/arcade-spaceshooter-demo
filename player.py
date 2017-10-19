@@ -42,6 +42,7 @@ class Player(arcade.Sprite):
         self.power = 1
         self.health = 5
         self.isshot = False
+        self.shoot_sound = arcade.sound.load_sound("sounds/pew.wav")
 
     def shoot1(self):
         bullet = Bullet("images/laserBlue01.png", SPRITE_SCALING * 1.5)
@@ -115,6 +116,7 @@ class Player(arcade.Sprite):
         self.wait_time += delta
         if self.wait_time > BULLET_TIME:
             if self.isshot: 
+                arcade.sound.play_sound(self.shoot_sound)
                 if self.power == 1:
                     self.shoot1()
                 elif self.power == 2:

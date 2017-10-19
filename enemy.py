@@ -42,7 +42,7 @@ class Enemyblack(arcade.Sprite):
         self.score = 100
 
     def shoot(self):
-        bullet = Bulletblack("images/laserRed01.png", SPRITE_SCALING * 1.5)
+        bullet = Bulletblack("images/circleRed01.png", SPRITE_SCALING * 1.5)
         bullet.setup(self.center_x, self.center_y, -3)
         #bullet.change_x = math.sin(angle) * -3
         #bullet.change_y = math.cos(angle) * -3
