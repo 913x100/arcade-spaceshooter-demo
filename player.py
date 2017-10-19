@@ -39,7 +39,8 @@ class Player(arcade.Sprite):
         self.center_x = SCREEN_WIDTH // 2
         self.center_y = 70
         self.wait_time = 0
-        self.power = 3
+        self.power = 1
+        self.health = 5
         self.isshot = False
 
     def shoot1(self):

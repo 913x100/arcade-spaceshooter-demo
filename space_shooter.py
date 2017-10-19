@@ -59,6 +59,7 @@ class SpaceWindow(arcade.Window):
         self.item_list = arcade.SpriteList()
         self.gameOver = False
         self.wave = 1
+        self.score = 0     
         self.isStart = False
         self.frame = 0
         self.spawn = 0
@@ -94,6 +95,9 @@ class SpaceWindow(arcade.Window):
         output = f"Level: {self.wave}"
         self.level_text = arcade.create_text(output, arcade.color.WHITE, 14)
         arcade.render_text(self.level_text, 10, 70)
+        output = f"Score: {self.score}"
+        self.score_text = arcade.create_text(output, arcade.color.WHITE, 14)
+        arcade.render_text(self.score_text, 10, 50)
     
     def on_key_press(self, key, modifiers):
         self.player.on_key_press(key, modifiers)
@@ -122,7 +126,7 @@ class SpaceWindow(arcade.Window):
         for enemy in self.enemy_list:
                 enemy.update(delta)
         
-        #self.frame += 1
+        self.frame += 1
 
         if self.wave == 1:
             time_spawn = randint(40, 80)
@@ -131,14 +135,14 @@ class SpaceWindow(arcade.Window):
                 #enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
                 enemy = Enemygreen("images/enemyGreen2.png", SPRITE_SCALING)
                 spawn_x = randint(0, len(random_list)-1)
-                enemy.setup(random_list[spawn_x], SCREEN_HEIGHT + 20, 10, self.bullet_list)
+                enemy.setup(random_list[spawn_x], SCREEN_HEIGHT + 20, 20, self.bullet_list)
                 self.enemy_list.append(enemy)
                 self.spawn += 1
         elif self.wave == 2:
             if self.frame % 100 == 0:
                 enemy = Enemyred("images/enemyRed5.png", SPRITE_SCALING)
                 spawn_x = randint(50, 460)
-                enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 20, self.bullet_list)
+                enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 30, self.bullet_list)
                 self.enemy_list.append(enemy)
         elif self.wave == 3:
             pass
@@ -152,7 +156,8 @@ class SpaceWindow(arcade.Window):
                     #bullet.kill()
                     for enemy in player_hits:   
                         enemy.health -= bullet.damage
-                        if enemy.health <= 0:                  
+                        if enemy.health <= 0:    
+                            self.score += enemy.score              
                             enemy.die()
                             enemy.kill()
                             for i in range(0, 8):
@@ -180,7 +185,7 @@ class SpaceWindow(arcade.Window):
                     self.player.power = 3
             item.kill()
         
-        self.frame += 1
+        #self.frame += 1
         
 
 keys = pyglet.window.key.KeyStateHandler()

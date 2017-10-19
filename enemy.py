@@ -39,6 +39,7 @@ class Enemyblack(arcade.Sprite):
         self.target_y = randint(SCREEN_HEIGHT-200, SCREEN_HEIGHT-100)
         self.isShoot = False
         self.health = hp
+        self.score = 100
 
     def shoot(self):
         bullet = Bulletblack("images/laserRed01.png", SPRITE_SCALING * 1.5)
@@ -88,6 +89,7 @@ class Enemygreen(arcade.Sprite):
         self.target_y = randint(SCREEN_HEIGHT-200, SCREEN_HEIGHT-100)
         self.isShoot = False
         self.health = hp
+        self.score = 150
         if randint(0, 1) == 0:
             self.change_x = randint(1, 2)
         else:
@@ -148,6 +150,7 @@ class Enemyred(arcade.Sprite):
         self.center_x = x
         self.center_y = y
         self.health = hp
+        self.score = 50
 
     def die(self):
         pass
