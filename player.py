@@ -34,7 +34,8 @@ class Bullet(arcade.Sprite):
 
 class Player(arcade.Sprite):
 
-    def setup(self, bullet_list):
+    def __init__(self, filename, scale, bullet_list):
+        super().__init__(filename, scale)
         self.bullet_list = bullet_list
         self.center_x = SCREEN_WIDTH // 2
         self.center_y = 70
@@ -42,7 +43,7 @@ class Player(arcade.Sprite):
         self.power = 1
         self.health = 5
         self.isshot = False
-        self.shoot_sound = arcade.sound.load_sound("sounds/pew.wav")
+        self.shoot_sound = arcade.sound.load_sound("sounds/pew.wav")        
 
     def shoot1(self):
         bullet = Bullet("images/laserBlue01.png", SPRITE_SCALING * 1.5)
@@ -86,27 +87,10 @@ class Player(arcade.Sprite):
             self.top = SCREEN_HEIGHT - 1
 
     def on_key_press(self, key, modifiers):
-        '''
-        if key == arcade.key.UP:
-            self.change_y = MOVEMENT_SPEED
-        elif key == arcade.key.DOWN:
-            self.change_y = -MOVEMENT_SPEED
-        elif key == arcade.key.LEFT:
-            self.change_x = -MOVEMENT_SPEED
-        elif key == arcade.key.RIGHT:
-            self.change_x = MOVEMENT_SPEED
-        '''
         if key == arcade.key.SPACE:
             self.isshot = True
         
-
     def on_key_release(self, key, modifiers):
-        '''
-        if key == arcade.key.UP or key == arcade.key.DOWN:
-            self.change_y = 0
-        elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
-            self.change_x = 0
-        '''
         if key == arcade.key.SPACE:
             self.isshot = False
         

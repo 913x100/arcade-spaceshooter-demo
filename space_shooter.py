@@ -1,10 +1,11 @@
-from random import randint
+import random
 
 import arcade
 import pyglet
 from pyglet.window import key
 
-from enemy import Enemyblack, Enemygreen, Enemyred
+import enemies
+from enemies import Enemyblack, Enemygreen, Enemyred
 from player import Player
 
 SPRITE_SCALING = 0.5
@@ -21,16 +22,25 @@ class Explosion(arcade.Sprite):
         self.center_x = x
         self.center_y = y
 
-class Power(arcade.Sprite):
-    def setup(self, x):
-        self.center_x = x
-        self.center_y = SCREEN_HEIGHT + 20
-        self.type = "power"
-    def update(self):
-        self.center_y -= 1.5
+class Life(arcade.Sprite):
+    def __init__(self, filename, scale):
+        super().__init__(filename, scale)
+        self.center_x = 20
+        self.center_y = 80
 
+class Item(arcade.Sprite):
+    def __init__(self, filename, scale, type):
+        super().__init__(filename, scale)
+        self.center_x = random.randint(50, 450)
+        self.center_y = SCREEN_HEIGHT + 20
+        self.change_y = -1.5
+        self.type = type
+
+    def update(self):
+        self.center_y += self.change_y
         if self.center_y < 0:
             self.kill()
+
 
 
 class Background(arcade.Sprite):
@@ -44,6 +54,7 @@ class Background(arcade.Sprite):
         self.center_y -= 1
         if self.top < 0:
             self.bottom = SCREEN_HEIGHT
+        
 
 class SpaceWindow(arcade.Window):
     def __init__(self, width, height):
@@ -67,24 +78,26 @@ class SpaceWindow(arcade.Window):
         self.expl_time = 0
         self.level_text = None
         self.expl_sound = arcade.sound.load_sound("sounds/expl3.wav")
+        self.atk_sound = arcade.sound.load_sound("sounds/expl6.wav")
+        self.item = ["power", "power", "speed"]
+        self.item_delay = 0
+
 
     def setup(self):
         # Set up the player
-        self.player = Player("images/player.png", SPRITE_SCALING)
-        self.player.setup(self.bullet_list)
+        self.player = Player("images/player.png", SPRITE_SCALING, self.bullet_list)
         bg = Background("images/6.png", SPRITE_SCALING)
         bg.setup(SCREEN_WIDTH // 2 ,SCREEN_HEIGHT)
         self.background_list.append(bg)
         bg = Background("images/6.png", SPRITE_SCALING)
         bg.setup(SCREEN_WIDTH // 2 ,2*SCREEN_HEIGHT)
         self.background_list.append(bg)
+        self.life = Life("images/playerLife1_orange.png", SPRITE_SCALING*1.5)
 
     def on_draw(self):
         arcade.start_render()
 
         # Draw background
-        #arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
-        #                              SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
         self.background_list.draw()
         # Draw all the sprites
         self.player.draw()
@@ -92,13 +105,14 @@ class SpaceWindow(arcade.Window):
         self.bullet_list.draw()
         self.effect_list.draw()
         self.item_list.draw()
+        self.life.draw()
         # Draw text
-        output = f"Level: {self.wave}"
-        self.level_text = arcade.create_text(output, arcade.color.WHITE, 14)
-        arcade.render_text(self.level_text, 10, 70)
         output = f"Score: {self.score}"
         self.score_text = arcade.create_text(output, arcade.color.WHITE, 14)
         arcade.render_text(self.score_text, 10, 50)
+        output = f"x{self.player.health}"
+        self.health_text = arcade.create_text(output, arcade.color.WHITE, 14)
+        arcade.render_text(self.health_text, 40, 73)
     
     def on_key_press(self, key, modifiers):
         self.player.on_key_press(key, modifiers)
@@ -116,12 +130,22 @@ class SpaceWindow(arcade.Window):
         if keys[key.DOWN]:
             self.player.center_y -= MOVEMENT_SPEED
 
+    def spawn_enemy(self, type, hp):
+        enemy  = None
+        if type == "black":
+            enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING, hp, self.bullet_list)
+        elif type == "red":
+            enemy = Enemyred("images/enemyRed5.png", SPRITE_SCALING, hp, self.bullet_list)
+        elif type == "green":
+            enemy = Enemygreen("images/enemyGreen2.png", SPRITE_SCALING, hp, self.bullet_list)
+
+        self.enemy_list.append(enemy)
+
     def update(self ,delta):
         # All object update 
         self.background_list.update()
         self.item_list.update()
         self.player_controller()
-
         self.player.update(delta)
         self.bullet_list.update()
         for enemy in self.enemy_list:
@@ -130,51 +154,20 @@ class SpaceWindow(arcade.Window):
         self.frame += 1
 
         if self.wave == 1:
-            time_spawn = randint(40, 80)
-            random_list = [60, 100, 140, 180, 220, 260, 300, 340, 380, 420, 460]
-            if self.frame % 60 == 0 and len(self.enemy_list) < 15:
-                #enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
-                enemy = Enemyred("images/enemyRed5.png", SPRITE_SCALING)
-                spawn_x = randint(0, len(random_list)-1)
-                enemy.setup(random_list[spawn_x], SCREEN_HEIGHT + 20, 20, self.bullet_list)
-                self.enemy_list.append(enemy)
-                if self.score >= 800:
-                    self.wave += 1
+            if self.frame % 50 == 0:
+                self.spawn_enemy("red", 20)
         elif self.wave == 2:
-            if self.frame % 80 == 0 and len(self.enemy_list) < 15:
-                enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
-                spawn_x = randint(50, 460)
-                enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 30, self.bullet_list)
-                self.enemy_list.append(enemy)
-                if self.score >= 2000:
-                    self.wave += 1
+            if self.frame % 50 == 0:
+                self.spawn_enemy("red", 20)
+            if self.frame % 80 == 0 and len(self.enemy_list) < 10:
+                self.spawn_enemy("black", 20)
         elif self.wave == 3:
+            if self.frame % 50 == 0:
+                self.spawn_enemy("red", 20)
+            if self.frame % 80 == 0 and len(self.enemy_list) < 10:
+                self.spawn_enemy("black", 20)
             if self.frame % 100 == 0 and len(self.enemy_list) < 15:
-                enemy = Enemygreen("images/enemyGreen2.png", SPRITE_SCALING)
-                spawn_x = randint(50, 460)
-                enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 30, self.bullet_list)
-                self.enemy_list.append(enemy)
-                if self.score >= 3500:
-                    self.wave += 1
-        elif  self.wave == 4:
-            random_list = [60, 100, 140, 180, 220, 260, 300, 340, 380, 420, 460]
-            if self.frame % 60 == 0 and len(self.enemy_list) < 25:
-                #enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
-                enemy = Enemyred("images/enemyRed5.png", SPRITE_SCALING)
-                spawn_x = randint(0, len(random_list)-1)
-                enemy.setup(random_list[spawn_x], SCREEN_HEIGHT + 20, 20, self.bullet_list)
-                self.enemy_list.append(enemy)
-            if self.frame % 80 == 0 and len(self.enemy_list) < 25:
-                enemy = Enemyblack("images/enemyBlack1.png", SPRITE_SCALING)
-                spawn_x = randint(50, 460)
-                enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 30, self.bullet_list)
-                self.enemy_list.append(enemy)
-            if self.frame % 100 == 0 and len(self.enemy_list) < 25:
-                enemy = Enemygreen("images/enemyGreen2.png", SPRITE_SCALING)
-                spawn_x = randint(50, 460)
-                enemy.setup(spawn_x, SCREEN_HEIGHT + 20, 30, self.bullet_list)
-                self.enemy_list.append(enemy)
-
+                self.spawn_enemy("green", 30)
         
         # Check bullet
         for bullet in self.bullet_list:
@@ -183,6 +176,7 @@ class SpaceWindow(arcade.Window):
                 if len(player_hits) > 0:
                     #bullet.kill()
                     for enemy in player_hits:   
+                        arcade.sound.play_sound(self.atk_sound)
                         enemy.health -= bullet.damage
                         if enemy.health <= 0:    
                             self.score += enemy.score   
@@ -203,19 +197,48 @@ class SpaceWindow(arcade.Window):
         
         # Check power
         if self.frame % 1000 == 0:
-            power = Power("images/powerupBlue_bolt.png", SPRITE_SCALING * 1.5)
-            power.setup(randint(50, 460))
-            self.item_list.append(power)
+            item = None
+            choice = random.choice(self.item)
+            if choice == "power":
+                item = Item("images/powerupBlue_bolt.png", SPRITE_SCALING * 1.5, "power")
+            elif choice == "speed":
+                item = Item("images/powerupBlue_star.png", SPRITE_SCALING * 1.5, "speed")
+            self.item_list.append(item)
         player_hits = arcade.check_for_collision_with_list(self.player, self.item_list)
         for item in player_hits:
             if item.type == "power":
                 self.player.power += 1
                 if self.player.power > 3:
                     self.player.power = 3
+            if item.type == "speed":
+                self.item_delay = 300
+                enemies.TIME_SPEED = 0.5
             item.kill()
         
+        # Enemy hits
+        enemy_hits = arcade.check_for_collision_with_list(self.player, self.enemy_list)
+        if len(enemy_hits) > 0:
+            for enemy in enemy_hits:
+                enemy.kill()
+            self.player.health -= 1
+        enemy_hits = arcade.check_for_collision_with_list(self.player, self.bullet_list)
+        for bullet in enemy_hits:
+            if bullet.isEnemy:
+                bullet.kill()
+                self.player.health -= 1
         #self.frame += 1
+        if self.item_delay > 0:
+            self.item_delay -= 1
+        if self.item_delay == 0:
+            enemies.TIME_SPEED = 1
+
+        # Score
+        if self.wave == 1 and self.score >= 800:
+            self.wave = 2
+        elif self.wave == 2 and self.score >= 3000:
+            self.wave = 3
         
+
 
 keys = pyglet.window.key.KeyStateHandler()
 
