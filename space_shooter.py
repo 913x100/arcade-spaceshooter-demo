@@ -79,7 +79,7 @@ class SpaceWindow(arcade.Window):
         self.level_text = None
         self.expl_sound = arcade.sound.load_sound("sounds/expl3.wav")
         self.atk_sound = arcade.sound.load_sound("sounds/expl6.wav")
-        self.item = ["power", "power", "speed"]
+        self.item = ["power", "speed"]
         self.item_delay = 0
 
 
@@ -159,14 +159,14 @@ class SpaceWindow(arcade.Window):
         elif self.wave == 2:
             if self.frame % 50 == 0:
                 self.spawn_enemy("red", 20)
-            if self.frame % 80 == 0 and len(self.enemy_list) < 10:
+            if self.frame % 80 == 0:
                 self.spawn_enemy("black", 20)
         elif self.wave == 3:
             if self.frame % 50 == 0:
                 self.spawn_enemy("red", 20)
-            if self.frame % 80 == 0 and len(self.enemy_list) < 10:
+            if self.frame % 80 == 0:
                 self.spawn_enemy("black", 20)
-            if self.frame % 100 == 0 and len(self.enemy_list) < 15:
+            if self.frame % 100 == 0:
                 self.spawn_enemy("green", 30)
         
         # Check bullet
@@ -212,7 +212,7 @@ class SpaceWindow(arcade.Window):
                     self.player.power = 3
             if item.type == "speed":
                 self.item_delay = 300
-                enemies.TIME_SPEED = 0.5
+                enemies.TIME_SPEED = 0.4
             item.kill()
         
         # Enemy hits
@@ -238,6 +238,8 @@ class SpaceWindow(arcade.Window):
         elif self.wave == 2 and self.score >= 3000:
             self.wave = 3
         
+        if self.player.health < 0:
+            exit()
 
 
 keys = pyglet.window.key.KeyStateHandler()

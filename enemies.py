@@ -78,7 +78,7 @@ class Bulletgreen(arcade.Sprite):
                 self.kill()
 
 class Enemygreen(arcade.Sprite):
-    def __init__(self, filename, scale, hp, time_speed, bullet_list):
+    def __init__(self, filename, scale, hp, bullet_list):
         super().__init__(filename, scale)
         self.bullet_list = bullet_list
         self.center_x = randint(40, 460)

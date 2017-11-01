@@ -8,7 +8,6 @@ SCREEN_WIDTH = 500
 MOVEMENT_SPEED = 5
 
 BULLET_TIME = 0.25
-
 class Bullet(arcade.Sprite):
     def setup(self, x, bottom, BULLET_TYPE, BULLET_SPEED):
         self.center_x = x
